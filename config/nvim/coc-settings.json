@@ -1,0 +1,8 @@
+{
+	"diagnostic.checkCurrentLine": true,
+	"coc.preferences.formatOnSaveFiletypes": ["rust", "dart"],
+	"rust.no_default_features": false,
+	"typescript.format.enabled": true
+}
+
+
