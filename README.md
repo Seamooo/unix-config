@@ -6,6 +6,7 @@ A set of config files for setting up a new environment.
 
 there exists configuration and automatic installs for the below packages
 
+- nvm
 - neovim
 - vim-plug
 - coc

@@ -33,7 +33,7 @@ log_stderr() {
 }
 
 usage() {
-    cat << EOF
+    cat -e << EOF
 Usage: $SCRIPT_NAME [OPTIONS]
 performs setup for a fresh debian install
       --headless             excludes desktop-reliant packages from setup
@@ -138,11 +138,27 @@ add_ppas_desktop() {
 	add_subl_ppa
 }
 
+install_nvm() {
+	# as we can't source .bashrc in a non-interactive environment,
+	# eval each line that's expected to be added
+	nvm_output=$(curl -sS \
+		https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh \
+		| bash | tail -n 3)
+	IFS=$'\n'
+	nvm_eval_lines=("$nvm_output")
+	unset IFS
+	for line in "${nvm_eval_lines[@]}"; do
+		eval "$line"
+	done
+	nvm install node
+}
+
 install_packages_headless() {
 	apt-get update && apt-get install -y \
 		vim \
 		neovim \
 		tmux
+	install_nvm
 }
 
 install_packages_desktop() {
@@ -161,13 +177,33 @@ install_packages_setup() {
 		git
 }
 
+configure_coc() {
+	coc_extensions=(
+		coc-html
+		coc-tsserver
+		coc-rls
+		coc-python
+		coc-pyright
+		coc-markdown
+		coc-json
+		coc-java
+		coc-flutter
+		coc-css
+		coc-clangd
+	)
+	log_stderr "Installing coc extensions"
+	for extension in "${coc_extensions[@]}"; do
+		nvim +"CocInstall $extension" +qa
+	done
+}
+
 configure_neovim() {
-	log_stderr TODO configure neovim
-	curl -fLo "${HOME}/.local/share/nvim/site/autoload/plug.vim --create-dirs \
-       https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
+	curl -sSfLo "${HOME}/.local/share/nvim/site/autoload/plug.vim" --create-dirs \
+       "https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
 	mkdir -p "${HOME}/.config/nvim"
-	cp -r "${REPO_PATH}/config/nvim/*" "${HOME}/.config/nvim/"
+	cp -r "$REPO_PATH"/config/nvim/* "${HOME}/.config/nvim/"
 	nvim +"PlugInstall" +qa
+	configure_coc
 }
 
 configure() {
