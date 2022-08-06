@@ -227,7 +227,7 @@ configure() {
 init() {
 	# cleanup any fragments from a previous setup attempt
 	[ -e "$WORKDIR_PATH" ] && rm -rf "$WORKDIR_PATH"
-	mkdir -p "$WORKDIR_PATH"
+	as_user mkdir -p "$WORKDIR_PATH"
 	cd "$WORKDIR_PATH"
 	log_stderr 'installing setup packages'
 	install_packages_setup
