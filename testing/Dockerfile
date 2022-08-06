@@ -1,5 +1,7 @@
 FROM ubuntu:jammy
 
-COPY setup.sh setup.sh
+COPY setup setup
 
-RUN bash setup.sh
+RUN apt-get update && apt-get install -y sudo
+
+RUN sudo -E /bin/bash setup

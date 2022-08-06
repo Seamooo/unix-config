@@ -47,9 +47,13 @@ is_set() {
     [ -n "${!1+x}" ]
 }
 
+as_user() {
+	sudo -u "$SUDO_USER" -E "$@"
+}
+
 check_root() {
-	if [ "$EUID" -ne 0 ]; then
-		setup_err "script must be run as root. Try sudo !!"
+	if [ "$EUID" -ne 0 ] && ! is_set "SUDO_USER"; then
+		setup_err "script must be run as sudo. Try sudo !!"
 	fi
 }
 
@@ -193,21 +197,31 @@ configure_coc() {
 	)
 	log_stderr "Installing coc extensions"
 	for extension in "${coc_extensions[@]}"; do
-		nvim +"CocInstall $extension" +qa
+		as_user nvim +"CocInstall $extension" +qa
 	done
 }
 
 configure_neovim() {
-	curl -sSfLo "${HOME}/.local/share/nvim/site/autoload/plug.vim" --create-dirs \
+	as_user curl -sSfLo "${HOME}/.local/share/nvim/site/autoload/plug.vim" --create-dirs \
        "https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
-	mkdir -p "${HOME}/.config/nvim"
-	cp -r "$REPO_PATH"/config/nvim/* "${HOME}/.config/nvim/"
-	nvim +"PlugInstall" +qa
+	as_user mkdir -p "${HOME}/.config/nvim"
+	as_user cp -r "$REPO_PATH"/config/nvim/* "${HOME}/.config/nvim/"
+	as_user nvim +"PlugInstall" +qa
 	configure_coc
+}
+
+configure_tmux() {
+	as_user cp "$REPO_PATH/.tmux.conf" "$HOME"
+}
+
+configure_vim() {
+	as_user cp "$REPO_PATH/.vimrc" "$HOME"
 }
 
 configure() {
 	configure_neovim
+	configure_tmux
+	configure_vim
 }
 
 init() {
@@ -218,7 +232,7 @@ init() {
 	log_stderr 'installing setup packages'
 	install_packages_setup
 	log_stderr cloning repo
-	git clone --depth=1 "$REPO_URL"
+	as_user git clone --depth=1 "$REPO_URL"
 }
 
 setup_headless() {

@@ -26,7 +26,7 @@ whether you're setting up a desktop or headless environment
 ```bash
 sudo apt-get update && \
   sudo apt-get install -y curl && \
-  curl "https://raw.githubusercontent.com/Seamooo/unix-config/master/setup.sh" \
+  curl "https://raw.githubusercontent.com/Seamooo/unix-config/master/setup" \
   | sudo -E bash
 ```
 
@@ -35,7 +35,7 @@ sudo apt-get update && \
 ```bash
 sudo apt-get update && \
   sudo apt-get install -y curl && \
-  curl "https://raw.githubusercontent.com/Seamooo/unix-config/master/setup.sh" \
+  curl "https://raw.githubusercontent.com/Seamooo/unix-config/master/setup" \
   | sudo -E bash -s - --headless
 ```
 
